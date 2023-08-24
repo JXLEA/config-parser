@@ -14,15 +14,15 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 
-public class ConstraintYamlParser implements ConstraintParser{
+public class ConstraintYamlParser implements ConstraintParser {
 
     private final ObjectMapper mapper;
 
     public ConstraintYamlParser() {
-        var yamlFactory = new YAMLFactory();
-        yamlFactory.disable(YAMLGenerator.Feature.WRITE_DOC_START_MARKER);
-        yamlFactory.configure(YAMLGenerator.Feature.MINIMIZE_QUOTES, true);
-        mapper = new ObjectMapper(yamlFactory);
+        mapper = new ObjectMapper(YAMLFactory.builder()
+                .disable(YAMLGenerator.Feature.WRITE_DOC_START_MARKER)
+                .configure(YAMLGenerator.Feature.MINIMIZE_QUOTES, true)
+                .build());
         mapper.setSerializationInclusion(JsonInclude.Include.NON_ABSENT);
     }
 
@@ -32,32 +32,28 @@ public class ConstraintYamlParser implements ConstraintParser{
     }
 
     @Override
-    public ConstraintsList mergeFiles(@NonNull String fromFile,
-                                      @NonNull String toFile,
+    public ConstraintsList mergeFiles(@NonNull String sourceFile,
+                                      @NonNull String targetFile,
                                       String fieldName) throws IOException {
-        var from = parseFile(fromFile);
-        var to = parseFile(toFile);
-        to.getConstraints().forEach(
-                toConstraint -> {
-                    var fromConstraint = from.getById(toConstraint.getId());
-                    setValue(fromConstraint, toConstraint, fieldName);
-                });
-        return to;
+        var sourceList = parseFile(sourceFile);
+        var targetList = parseFile(targetFile);
+        targetList.getConstraints().forEach(
+                target -> setValue(sourceList.getById(target.getId()), target, fieldName));
+        return targetList;
     }
 
-    private void setValue(@NonNull Constraint fromConstraint,
-                          @NonNull Constraint toConstraint,
-                          String fieldName) {
+    private void setValue(@NonNull Constraint source,
+                          @NonNull Constraint target,
+                          @NonNull String fieldName) {
         var field = ReflectionUtils.findField(Constraint.class, fieldName);
         ReflectionUtils.makeAccessible(field);
-        var value = ReflectionUtils.getField(field, fromConstraint);
-        ReflectionUtils.setField( field, toConstraint, value);
+        var value = ReflectionUtils.getField(field, source);
+        ReflectionUtils.setField(field, target, value);
     }
-
 
     public void writeToYaml(String pathToFile, ConstraintsList constraintsList) throws IOException {
         var yaml = mapper.writeValueAsString(constraintsList);
-        try (var writer = new BufferedWriter(new FileWriter(new File(pathToFile)))) {
+        try (var writer = new BufferedWriter(new FileWriter(pathToFile))) {
             writer.write(yaml);
         }
     }
