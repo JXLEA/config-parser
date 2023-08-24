@@ -14,7 +14,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 
-public class ConstraintYamlParser {
+public class ConstraintYamlParser implements ConstraintParser{
 
     private final ObjectMapper mapper;
 
@@ -26,15 +26,17 @@ public class ConstraintYamlParser {
         mapper.setSerializationInclusion(JsonInclude.Include.NON_ABSENT);
     }
 
-    private ConstraintsList parseYaml(String fileName) throws IOException {
+    @Override
+    public ConstraintsList parseFile(@NonNull String fileName) throws IOException {
         return mapper.readValue(new File(fileName), ConstraintsList.class);
     }
 
+    @Override
     public ConstraintsList mergeFiles(@NonNull String fromFile,
                                       @NonNull String toFile,
                                       String fieldName) throws IOException {
-        var from = parseYaml(fromFile);
-        var to = parseYaml(toFile);
+        var from = parseFile(fromFile);
+        var to = parseFile(toFile);
         to.getConstraints().forEach(
                 toConstraint -> {
                     var fromConstraint = from.getById(toConstraint.getId());

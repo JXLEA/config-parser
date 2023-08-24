@@ -1,11 +1,14 @@
 package ua.jxlea.parser;
 
+import lombok.NonNull;
 import ua.jxlea.constraint.ConstraintsList;
 
 import java.io.IOException;
 
 public interface ConstraintParser {
-    ConstraintsList mergeFiles(String fromFile, String toFile) throws IOException;
+    ConstraintsList parseFile(@NonNull String fileName) throws IOException;
 
-    void writeToYaml(String pathToFile, ConstraintsList constraintsList) throws IOException;
+    ConstraintsList mergeFiles(@NonNull String fromFile,
+                               @NonNull String toFile,
+                               String fieldName) throws IOException;
 }
