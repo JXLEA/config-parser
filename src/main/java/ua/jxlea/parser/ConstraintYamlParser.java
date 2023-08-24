@@ -34,7 +34,7 @@ public class ConstraintYamlParser implements ConstraintParser {
     @Override
     public ConstraintsList mergeFiles(@NonNull String sourceFile,
                                       @NonNull String targetFile,
-                                      String fieldName) throws IOException {
+                                      @NonNull String fieldName) throws IOException {
         var sourceList = parseFile(sourceFile);
         var targetList = parseFile(targetFile);
         targetList.getConstraints().forEach(
