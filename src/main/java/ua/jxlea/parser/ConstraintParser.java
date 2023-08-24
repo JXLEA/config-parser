@@ -11,5 +11,4 @@ public interface ConstraintParser {
     ConstraintsList mergeFiles(@NonNull String sourceFile,
                                @NonNull String targetFile,
                                @NonNull String fieldName) throws IOException;
-
 }
