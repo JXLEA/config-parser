@@ -20,7 +20,7 @@ or
 set all required parameters to the
 
 ```java
-ConstraingParserStarter()
+ConstraintParserStarter()
 ```
 
 ### Command line arguments:
